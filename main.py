@@ -112,7 +112,7 @@ class SimEnvironment(object):
 
         return carla_world.spawn_actor(
             blueprint,
-            carla_map.get_spawn_points()[-1],
+            carla_map.get_spawn_points()[0],
             attach_to=None
         )        
 
@@ -294,18 +294,15 @@ def game_loop(args):
                 return
 
             pygame.display.flip()
+
     except KeyboardInterrupt:
         logging.debug("Stopped by user!")
         
+    finally:
         sim_env.destroy()
         if original_settings is not None:
             carla_world.apply_settings(original_settings)
             original_settings = None
-        
-
-    finally:
-        if original_settings is not None:
-            carla_world.apply_settings(original_settings)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='CARLA ROS2 native')
@@ -331,7 +328,7 @@ if __name__ == '__main__':
         help='File to be executed'
     )
     
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.debug)
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     args = argparser.parse_args()
     
     game_loop(args)
