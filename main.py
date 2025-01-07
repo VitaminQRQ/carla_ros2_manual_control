@@ -1,12 +1,14 @@
 import pygame
-import logging
 import carla
 
 import argparse
+import logging
 import json
 import logging
 import math
 import os
+import sys
+import time
 
 from typing import List, Dict
 
@@ -72,21 +74,30 @@ class SimEnvironment(object):
             self.world, 
             self.configs
         )
+        time.sleep(2)
+        logging.info("Vehicle set")
+
         self.vehicle.set_autopilot(False)
+        time.sleep(2)
+        logging.info("Autopilot mode set")
 
         self.sensors = self.setup_sensors(
             self.world, 
             self.vehicle, 
             self.configs.get("sensors", [])
         )
+        time.sleep(2)
+        logging.info("Sensors set")
 
     def destroy(self):
         logging.debug("Destroy!")
         for sensor in self.sensors:
             sensor.destroy()
+            time.sleep(2)
         
         if self.vehicle:
             self.vehicle.destroy()
+            time.sleep(2)
     
     def setup_vehicle(self,
                       carla_world: carla.World,
@@ -239,7 +250,7 @@ class KeyboardControl(object):
 def game_loop(args):
     pygame.init()
     pygame.font.init()
-
+    
     display_width = 300
     display_height = 300
     display = pygame.display.set_mode(
@@ -251,12 +262,17 @@ def game_loop(args):
 
     carla_world = None
     original_settings = None
+    sim_env = None
     
     try:
         carla_client = carla.Client(args.host, args.port)
         carla_client.set_timeout(2000.0)
 
         carla_world = carla_client.get_world()
+        carla_world = carla_client.load_world('Mine_01')
+        time.sleep(10)
+        logging.info("Offroad map loaded")
+        
         original_settings = carla_world.get_settings()
         settings = carla_world.get_settings()
         
@@ -299,10 +315,16 @@ def game_loop(args):
         logging.debug("Stopped by user!")
         
     finally:
-        sim_env.destroy()
+        pygame.quit()
+        
+        if sim_env is not None:
+            sim_env.destroy()
+
         if original_settings is not None:
             carla_world.apply_settings(original_settings)
             original_settings = None
+
+        sys.exit()
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='CARLA ROS2 native')
