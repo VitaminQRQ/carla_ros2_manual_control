@@ -346,8 +346,8 @@ if __name__ == '__main__':
     argparser.add_argument(
         '-f', 
         '--file', 
-        default='stack.json', 
-        help='File to be executed'
+        default='/root/ws/colcon_ws/src/carla_simulation/config/vehicle_config.json', 
+        help='Configurations of ego vehicle and its sensors'
     )
     
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
